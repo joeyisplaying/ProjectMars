@@ -3,8 +3,11 @@
 
 #include "MarsGameStateBase.h"
 
+#include "SettlementFactory.h"
 #include "Logging/StructuredLog.h"
+#include "ProjectMars/Civic/Settlement.h"
 #include "ProjectMars/Controllers/BasePlayerController.h"
+#include "ProjectMars/Controllers/PlayerControllerProcessor.h"
 #include "ProjectMars/Player/ProjectMarsPlayer.h"
 #include "ProjectMars/Delegates/DelegateController.h"
 #include "ProjectMars/Nation/Nation.h"
@@ -37,31 +40,53 @@ AMarsGameStateBase::AMarsGameStateBase()
 	YearController = NewObject<UYearController>();
 	YearController->SetDelegateController(DelegateController);
 	YearController->SubToEvents(DelegateController);
+
+	// Settlements
+	SettlementFactory = NewObject<USettlementFactory>();
+	SettlementFactory->SetWorld(GetWorld());
+	SettlementFactory->SetDelegateController(DelegateController);
 	
 	InitialiseFactionTags();
-	BuildNations();
+	// BuildNations();
 
 	UE_LOGFMT(LogTemp, Warning, "Game state has been built");
 }
 
 void AMarsGameStateBase::AddPlayerToPlayerArray(AProjectMarsPlayer* ProjectMarsPlayer)
 {
+	ensure(ProjectMarsPlayer);
 	AllPlayers.Add(ProjectMarsPlayer);
+	
 	ABasePlayerController* PlayerController = Cast<ABasePlayerController>(ProjectMarsPlayer->GetController());
 	ensure(PlayerController);
-	// PlayerController->SetNation(*Nations.Find("ROM"));
-	//PlayerController->InitialisePointers();
-	//PlayerController->GetHUD()->SetNation(*Nations.Find("ROM"));
+	AllPlayerControllers.Add(PlayerController);
+	if (AllPlayerControllers.Num() == GetWorld()->GetNumPlayerControllers())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Starting player setup"));
+		
+		NewObject<UPlayerControllerProcessor>()
+			->SetDelegateController(DelegateController)
+			->SetPlayerControllerList(AllPlayerControllers)
+			->Main();
+		
+		UE_LOG(LogTemp, Log, TEXT("Player setup complete"));
+		DelegateController->OnPlayerSetupComplete.Broadcast();
+	}
 }
 
 void AMarsGameStateBase::AddToPlayerControllersList(ABasePlayerController* PlayerController)
 {
-	ensure(PlayerController);
-	AllPlayerControllers.Add(PlayerController);
-	PlayerController->SetDelegateController(DelegateController);
-	PlayerController->SubscribeToDelegates(DelegateController);
-	PlayerController->SetNation(*Nations.Find("ROM"));
-	PlayerController->InitialisePointers();
+	// if (!PlayerController)
+	// {
+	// 	UE_LOG(LogTemp, Fatal, TEXT("Failed to add player controllers to list; PlayerController was null."));
+	// 	return;
+	// }
+	// PlayerController->Tick();
+	// AllPlayerControllers.Add(PlayerController);
+	// if (AllPlayerControllers.Num() == GetWorld()->GetNumPlayerControllers())
+	// {
+	// 	// All player controllers added to list - broadcast delegate
+	// }
 }
 
 void AMarsGameStateBase::LoadFirstTurn()
@@ -73,6 +98,16 @@ void AMarsGameStateBase::LoadFirstTurn()
 void AMarsGameStateBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// const FVector Location = FVector(610.000000f,70.000000f,20.000000f);
+	// const FRotator Rotation = FRotator(0, 0, 0);
+	//
+	// GetWorld()->SpawnActor<ASettlement>(Location, Rotation);
+
+	const FVector Location = FVector(610.000000f,70.000000f,20.000000f);
+	const FRotator Rotation = FRotator(0, 0, 0);
+	
+	SettlementFactory->Create(Location, Rotation);
 }
 
 void AMarsGameStateBase::Tick(float DeltaSeconds)
@@ -120,5 +155,15 @@ void AMarsGameStateBase::BuildNations()
 	for (const auto& Nation : Nations)
 	{
 		Nation.Value->SubscribeToEvents(DelegateController);
+	}
+}
+
+void AMarsGameStateBase::SetupPlayerControllers()
+{
+	for (auto* PlayerController : AllPlayerControllers)
+	{
+		PlayerController->SetDelegateController(DelegateController);
+		PlayerController->SubscribeToDelegates(DelegateController);
+		PlayerController->SetNation(*Nations.Find("ROM"));
 	}
 }

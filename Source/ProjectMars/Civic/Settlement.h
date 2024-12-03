@@ -4,19 +4,32 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ProjectMars/Framework/SpawnableActor.h"
 #include "Settlement.generated.h"
 
+class UDelegateController;
+
 UCLASS()
-class PROJECTMARS_API ASettlement : public AActor
+class PROJECTMARS_API ASettlement : public ASpawnableActor
 {
 	GENERATED_BODY()
-	
+
+public:
+
+private:
+
 public:	
 	// Sets default values for this actor's properties
 	ASettlement();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+	void InitialiseEvents();
+
+	UFUNCTION()
+	void SettlementClicked();
 
 protected:
 	// Called when the game starts or when spawned
@@ -30,19 +43,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Root")
 	class USceneComponent* Root{ nullptr };
 
-	UPROPERTY(EditAnywhere, Category = "Mesh")
-	class UStaticMeshComponent* Mesh{ nullptr };
+	UPROPERTY(EditAnywhere, Category = "StaticMesh")
+	class UStaticMeshComponent* StaticMesh{ nullptr };
 
-	UPROPERTY(EditAnywhere, Category = "Trigger Box")
-	class UBoxComponent* TriggerBox{ nullptr };
-
-	UFUNCTION()
-	void SettlementClicked(UPrimitiveComponent* ClickedComponent, FKey ButtonPressed);
-
-public:
+public:	
 	UPROPERTY(EditAnywhere, Category = "Widget Component")
 	class USettlementWidgetComponent* SettlementWidgetComponent{ nullptr };
-
+	
 	UPROPERTY(EditAnywhere, Category = "Widget Component")
 	TSubclassOf<class UUserWidget> SettlementWidgetComponentClass;
 	

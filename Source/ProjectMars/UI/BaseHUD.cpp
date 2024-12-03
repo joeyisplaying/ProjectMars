@@ -45,31 +45,7 @@ ABaseHUD::ABaseHUD()
 void ABaseHUD::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	InitialisePointers();
-	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "MainMenu")
-	{
-		MainMenuWidget->StartButton->OnReleased.AddDynamic(this, &ABaseHUD::RemoveMainMenuFromParent);
-		MainMenu2Widget->StartNewGameButton_1->OnReleased.AddDynamic(this, &ABaseHUD::RemoveMainMenu2FromParent);
-		ChooseFactionWidget->FactionButton_Rome->OnReleased.AddDynamic(this, &ABaseHUD::LoadMainWorld);
-		MainMenuWidget->AddToViewport();
-		
-		//ChooseFactionWidget->AddToViewport();
-	}
-	else if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "DefaultMap")
-	{
-		/*DevInfoWidget->TurnNumberText->SetText(FText::AsNumber(1));
-		DevInfoWidget->CurrentTurnOwnerText->SetText(FText::FromString("ROM"));
-		DevInfoWidget->AddToViewport();*/
 
-		MainGameWidget->AddToViewport();
-		EventPopupWidget->AddToViewport();
-	
-		StartButtonWidget->StartText->SetText(FText::FromString("START"));
-		StartButtonWidget->StartButton->OnReleased.AddDynamic(this, &ABaseHUD::BroadcastStartButton);
-		StartButtonWidget->AddToViewport();
-
-	}
 }
 
 void ABaseHUD::DrawHUD()
@@ -218,17 +194,47 @@ void ABaseHUD::DrawSelectionBox()
 
 void ABaseHUD::InitialisePointers()
 {
+	ensure(DelegateController);
+	
 	APlayerController* OwningPlayerController = GetOwningPlayerController();
 	
 	MainMenuWidget = CreateWidget<UMainMenuWidget>(OwningPlayerController, MainMenuWidgetClass);
 	MainMenu2Widget = CreateWidget<UMainMenu2Widget>(OwningPlayerController, MainMenu2WidgetClass);
 	ChooseFactionWidget = CreateWidget<UChooseFactionWidget>(OwningPlayerController, ChooseFactionWidgetClass);
 	ChooseFactionWidget->InitialiseFactionButtonsWithSelf();
+	
 	MainGameWidget = CreateWidget<UMainGameWidget>(OwningPlayerController, MainGameWidgetClass);
+	MainGameWidget->SetDelegateController(DelegateController);
+	MainGameWidget->InitialiseEvents();
+	
 	EconomyWidget = CreateWidget<UEconomyWidget>(OwningPlayerController, EconomyWidgetClass);
 	EventPopupWidget = CreateWidget<UEventPopupWidget>(OwningPlayerController, EventPopupWidgetClass);
 	DevInfoWidget = CreateWidget<UDevInfoWidget>(OwningPlayerController, DevInfoWidgetClass);
 	StartButtonWidget = CreateWidget<UStartButtonWidget>(OwningPlayerController, StartButtonWidgetClass);
+
+	if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "MainMenu")
+	{
+		MainMenuWidget->StartButton->OnReleased.AddDynamic(this, &ABaseHUD::RemoveMainMenuFromParent);
+		MainMenu2Widget->StartNewGameButton_1->OnReleased.AddDynamic(this, &ABaseHUD::RemoveMainMenu2FromParent);
+		ChooseFactionWidget->FactionButton_Rome->OnReleased.AddDynamic(this, &ABaseHUD::LoadMainWorld);
+		MainMenuWidget->AddToViewport();
+		
+		//ChooseFactionWidget->AddToViewport();
+	}
+	else if (UGameplayStatics::GetCurrentLevelName(GetWorld()) == "DefaultMap")
+	{
+		/*DevInfoWidget->TurnNumberText->SetText(FText::AsNumber(1));
+		DevInfoWidget->CurrentTurnOwnerText->SetText(FText::FromString("ROM"));
+		DevInfoWidget->AddToViewport();*/
+
+		MainGameWidget->AddToViewport();
+		//EventPopupWidget->AddToViewport();
+	
+		StartButtonWidget->StartText->SetText(FText::FromString("START"));
+		StartButtonWidget->StartButton->OnReleased.AddDynamic(this, &ABaseHUD::BroadcastStartButton);
+		StartButtonWidget->AddToViewport();
+
+	}
 }
 
 void ABaseHUD::DrawEconomyData(const UEconomyData* EconomyDataVar)
@@ -259,25 +265,25 @@ void ABaseHUD::DrawFPS()
 
 void ABaseHUD::DrawDevInfo()
 {
-	// DevInfoWidget->TurnNumberText->SetText(FText::FromString("Turn Number Text"));
-	DevInfoWidget->SeasonText->SetText(FText::FromString(CurrentSeason));
-	DevInfoWidget->YearText->SetText(FText::FromString(CurrentDate));
-	// DevInfoWidget->CurrentTurnOwnerText->SetText(FText::FromString("Current Turn Owner Text"));
-
-	// Population
-	const FString TotalPop = FString::Printf(TEXT("Total pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentTotalPopNum()));
-	const FString CitizenPop = FString::Printf(TEXT("Citizen pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentCitizenPopNum()));
-	const FString NonCitizenPop = FString::Printf(TEXT("Non-Citizen pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentNonCitizenPopNum()));
-	const FString AlliedClientPop = FString::Printf(TEXT("Allied/Client pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentAlliedClientPopNum()));
-	const FString SlavePop = FString::Printf(TEXT("Slave pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentSlavePopNum()));
-	const FString ForeignerPop = FString::Printf(TEXT("Foreigner pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentForeignerPopNum()));
-	
-	DevInfoWidget->CurrentTotalPopNum->SetText(FText::FromString(TotalPop));
-	DevInfoWidget->CurrentCitizenPopNum->SetText(FText::FromString(CitizenPop));
-	DevInfoWidget->CurrentNonCitizenPopNum->SetText(FText::FromString(NonCitizenPop));
-	DevInfoWidget->CurrentAlliedClientPopNum->SetText(FText::FromString(AlliedClientPop));
-	DevInfoWidget->CurrentSlavePopNum->SetText(FText::FromString(SlavePop));
-	DevInfoWidget->CurrentForeignerPopNum->SetText(FText::FromString(ForeignerPop));
+	// // DevInfoWidget->TurnNumberText->SetText(FText::FromString("Turn Number Text"));
+	// DevInfoWidget->SeasonText->SetText(FText::FromString(CurrentSeason));
+	// DevInfoWidget->YearText->SetText(FText::FromString(CurrentDate));
+	// // DevInfoWidget->CurrentTurnOwnerText->SetText(FText::FromString("Current Turn Owner Text"));
+	//
+	// // Population
+	// const FString TotalPop = FString::Printf(TEXT("Total pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentTotalPopNum()));
+	// const FString CitizenPop = FString::Printf(TEXT("Citizen pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentCitizenPopNum()));
+	// const FString NonCitizenPop = FString::Printf(TEXT("Non-Citizen pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentNonCitizenPopNum()));
+	// const FString AlliedClientPop = FString::Printf(TEXT("Allied/Client pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentAlliedClientPopNum()));
+	// const FString SlavePop = FString::Printf(TEXT("Slave pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentSlavePopNum()));
+	// const FString ForeignerPop = FString::Printf(TEXT("Foreigner pop num: %s"), *FString::FormatAsNumber(PopulationData->GetCurrentForeignerPopNum()));
+	//
+	// DevInfoWidget->CurrentTotalPopNum->SetText(FText::FromString(TotalPop));
+	// DevInfoWidget->CurrentCitizenPopNum->SetText(FText::FromString(CitizenPop));
+	// DevInfoWidget->CurrentNonCitizenPopNum->SetText(FText::FromString(NonCitizenPop));
+	// DevInfoWidget->CurrentAlliedClientPopNum->SetText(FText::FromString(AlliedClientPop));
+	// DevInfoWidget->CurrentSlavePopNum->SetText(FText::FromString(SlavePop));
+	// DevInfoWidget->CurrentForeignerPopNum->SetText(FText::FromString(ForeignerPop));
 }
 
 void ABaseHUD::SetYearText(const FString& CurrentDateVar)
@@ -343,15 +349,17 @@ void ABaseHUD::BroadcastStartButton()
 	Controller->StartGame();
 }
 
-void ABaseHUD::SubscribeToEvents(UDelegateController* DelegateControllerVar)
+void ABaseHUD::SubscribeToEvents()
 {
-	DelegateControllerVar->OnNewSeason.AddDynamic(this, &ABaseHUD::UpdateSeasonText);
-	DelegateControllerVar->OnUpdateDate.AddDynamic(this, &ABaseHUD::SetYearText);
+	DelegateController->OnNewSeason.AddDynamic(this, &ABaseHUD::UpdateSeasonText);
+	DelegateController->OnUpdateDate.AddDynamic(this, &ABaseHUD::SetYearText);
 }
 
 ABaseHUD* ABaseHUD::SetDelegateController(UDelegateController* DelegateControllerVar)
 {
 	DelegateController = DelegateControllerVar;
+	ensure(DelegateController);
+	SubscribeToEvents();
 	return this;
 }
 

@@ -111,7 +111,7 @@ public:
 	void BroadcastStartButton();
 
 	UFUNCTION()
-	void SubscribeToEvents(UDelegateController* DelegateControllerVar);
+	void SubscribeToEvents();
 
 	// Setters
 	

@@ -28,7 +28,10 @@ public:
 	virtual void SetupInputComponent() override;
 
 	UFUNCTION()
-	void InitialisePointers();
+	void SetupHUD();
+
+	UFUNCTION()
+	ABasePlayerController* InitialisePawn();
 
 	UFUNCTION()
 	void SubscribeToDelegates(UDelegateController* DelegateControllerVar);

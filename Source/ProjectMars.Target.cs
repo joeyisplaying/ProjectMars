@@ -8,7 +8,8 @@ public class ProjectMarsTarget : TargetRules
 	public ProjectMarsTarget( TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "ProjectMars" } );
+		DefaultBuildSettings = BuildSettingsVersion.V5;
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_4;
+		ExtraModuleNames.Add("ProjectMars");
 	}
 }

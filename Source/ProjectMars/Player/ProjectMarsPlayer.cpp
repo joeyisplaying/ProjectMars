@@ -10,6 +10,8 @@
 #include "ProjectMars/UI/BaseHUD.h"
 #include "DrawDebugHelpers.h"
 #include "Logging/StructuredLog.h"
+#include "Math/TransformCalculus3D.h"
+#include "ProjectMars/Civic/Settlement.h"
 #include "ProjectMars/Military/Army.h"
 
 AProjectMarsPlayer::AProjectMarsPlayer()

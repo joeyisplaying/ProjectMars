@@ -7,6 +7,7 @@
 
 #include "MarsGameStateBase.generated.h"
 
+class USettlementFactory;
 class AProjectMarsPlayer;
 class UDelegateController;
 class UNation;
@@ -50,6 +51,9 @@ private:
 
 	UFUNCTION()
 	void BuildNations();
+
+	UFUNCTION()
+	void SetupPlayerControllers();
 	
 	// Properties
 	UPROPERTY(EditAnywhere)
@@ -75,6 +79,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UYearController* YearController{ nullptr };
+
+	UPROPERTY(EditAnywhere)
+	USettlementFactory* SettlementFactory{ nullptr };
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;

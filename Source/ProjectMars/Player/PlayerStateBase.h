@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerState.h"
 #include "PlayerStateBase.generated.h"
 
+class AMarsGameStateBase;
+
 /**
  * 
  */
@@ -21,4 +23,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(EditAnywhere)
+	AMarsGameStateBase* GameState{ nullptr };
 };

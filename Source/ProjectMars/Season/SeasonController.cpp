@@ -33,21 +33,7 @@ void USeasonController::BroadcastNewSeasonEvent(const int32 TurnNumberVar)
 
 void USeasonController::PopulateListOfSeasons()
 {
-	bool bSuccess;
-	FString Output;
-	const FString SeasonsJsonPath = "E:/Unreal/Unreal Projects/ProjectMars 5.0/Source/ProjectMars/TempJson/Seasons/seasons.json";
-	const TSharedPtr<FJsonObject> SeasonsJson = UReadWriteJsonFile::ReadJson(SeasonsJsonPath, bSuccess, Output);
-
-	if (!bSuccess)
-	{
-		UE_LOGFMT(LogTemp, Fatal, "{0}", Output);
-	}
-
-	for (const auto& Elem : SeasonsJson->Values)
-	{
-		const FString& Field = Elem.Key;
-		ListOfSeasons.Add(SeasonsJson->GetStringField(Field));
-	}
+	ListOfSeasons = {"spring", "summer", "autumn", "winter"};
 	
 	StartingSeason = ListOfSeasons[0];
 	MaxNumberOfSeasons = ListOfSeasons.Num();
